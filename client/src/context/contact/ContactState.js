@@ -1,47 +1,48 @@
 import React, { useReducer } from 'react';
 import uuid from 'uuid';
+import axios from "axios";
 import ContactContext from './contactContext';
 import contactReducer from './contactReducer';
 import {
+  GET_CONTACTS,
   ADD_CONTACT,
   DELETE_CONTACT,
   SET_CURRENT,
   CLEAR_CURRENT,
   UPDATE_CONTACT,
   FILTER_CONTACTS,
-  CLEAR_FILTER
+  CLEAR_CONTACTS,
+  CLEAR_FILTER,
+  CONTACT_ERROR
 } from "../types";
+
 
 const ContactState = props => {
   const initialState = {
-    contacts: [
-      {
-        id: 1,
-        name: 'Jill Johnson',
-        email: 'jill@gmail.com',
-        phone: '111-111-1111',
-        type: 'personal'
-      },
-      {
-        id: 2,
-        name: 'Sara Watson',
-        email: 'sara@gmail.com',
-        phone: '222-222-2222',
-        type: 'personal'
-      },
-      {
-        id: 3,
-        name: 'Harry White',
-        email: 'harry@gmail.com',
-        phone: '333-333-333',
-        type: 'professional'
-      }
-    ],
+    contacts: null,
     current: null,
-    filtered: null
+    filtered: null,
+    error: null
   };
 
   const [state, dispatch] = useReducer(contactReducer, initialState);
+
+  //  Get Contacts
+  const getContacts = async () => {
+    try {
+      const res = await axios.get('/api/contacts');
+
+      dispatch({
+        type: GET_CONTACTS,
+        payload: res.data
+      });
+    } catch (err) {
+      dispatch({
+        type: CONTACT_ERROR,
+        payload: err.response.msg
+      });
+    }
+  }
 
   // Add Contact
   const addContact = contact => {
@@ -52,6 +53,11 @@ const ContactState = props => {
   // Delete Contact
   const deleteContact = id => {
     dispatch({ type: DELETE_CONTACT, payload: id });
+  };
+
+  // Clear Contacts
+  const clearContacts = () => {
+    dispatch({ type: CLEAR_CONTACTS });
   };
 
   // Set Current Contact
@@ -91,7 +97,9 @@ const ContactState = props => {
         clearCurrent,
         updateContact,
         filterContacts,
-        clearFilter
+        clearFilter,
+        getContacts,
+        clearContacts
       }}
     >
       { props.children }
