@@ -1,5 +1,4 @@
 import {
-  GET_CONTACTS,
   ADD_CONTACT,
   DELETE_CONTACT,
   SET_CURRENT,
@@ -8,6 +7,7 @@ import {
   FILTER_CONTACTS,
   CLEAR_FILTER,
   CONTACT_ERROR,
+  GET_CONTACTS,
   CLEAR_CONTACTS
 } from "../types";
 
@@ -18,7 +18,7 @@ export default (state, action) => {
         ...state,
         contacts: action.payload,
         loading: false
-      }
+      };
     case ADD_CONTACT:
       return {
         ...state,
@@ -44,55 +44,38 @@ export default (state, action) => {
     case CLEAR_CONTACTS:
       return {
         ...state,
-        contacts: [
-          {
-            id: 1,
-            name: 'Jill Johnson',
-            email: 'jill@gmail.com',
-            phone: '111-111-1111',
-            type: 'personal'
-          },
-          {
-            id: 2,
-            name: 'Sara Watson',
-            email: 'sara@gmail.com',
-            phone: '222-222-2222',
-            type: 'personal'
-          },
-          {
-            id: 3,
-            name: 'Harry White',
-            email: 'harry@gmail.com',
-            phone: '333-333-333',
-            type: 'professional'
-          }
-        ],
+        contacts: null,
         filtered: null,
         error: null,
         current: null
       };
-      case SET_CURRENT:
-       return {
-         ...state,
-         current: action.payload
-       };
-      case CLEAR_CURRENT:
-        return {
+    case SET_CURRENT:
+      return {
+        ...state,
+        current: action.payload
+      };
+    case CLEAR_CURRENT:
+      return {
         ...state,
         current: null
       };
     case FILTER_CONTACTS:
-      return {
-        ...state,
+     return {
+       ...state,
        filtered: state.contacts.filter(contact => {
          const regex = new RegExp(`${action.payload}`, 'gi');
          return contact.name.match(regex) || contact.email.match(regex);
-         })
-      };
+       })
+     };
     case CLEAR_FILTER:
       return {
         ...state,
         filtered: null
+      };
+    case CONTACT_ERROR:
+      return {
+        ...state,
+        error: action.payload
       };
     default:
       return state;

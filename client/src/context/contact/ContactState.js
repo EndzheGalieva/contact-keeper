@@ -1,8 +1,7 @@
 import React, { useReducer } from 'react';
-import uuid from 'uuid';
-import axios from "axios";
+import axios from 'axios';
 import ContactContext from './contactContext';
-import contactReducer from './contactReducer';
+import contactReducer from "./contactReducer";
 import {
   GET_CONTACTS,
   ADD_CONTACT,
@@ -16,7 +15,6 @@ import {
   CONTACT_ERROR
 } from "../types";
 
-
 const ContactState = props => {
   const initialState = {
     contacts: null,
@@ -27,7 +25,7 @@ const ContactState = props => {
 
   const [state, dispatch] = useReducer(contactReducer, initialState);
 
-  //  Get Contacts
+  // Get Contacts
   const getContacts = async () => {
     try {
       const res = await axios.get('/api/contacts');
@@ -42,12 +40,30 @@ const ContactState = props => {
         payload: err.response.msg
       });
     }
-  }
+  };
+
 
   // Add Contact
-  const addContact = contact => {
-    contact.id = uuid.v4();
-    dispatch({ type: ADD_CONTACT, payload: contact });
+  const addContact = async contact => {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+
+  try {
+    const res = await axios.post('/api/contacts', contact, config);
+
+    dispatch({
+      type: ADD_CONTACT,
+      payload: res.data
+    });
+  } catch (err) {
+    dispatch({
+     type: CONTACT_ERROR,
+     payload: err.response.msg
+    });
+   }
   };
 
   // Delete Contact
@@ -59,6 +75,7 @@ const ContactState = props => {
   const clearContacts = () => {
     dispatch({ type: CLEAR_CONTACTS });
   };
+
 
   // Set Current Contact
   const setCurrent = contact => {
@@ -82,7 +99,7 @@ const ContactState = props => {
 
   // Clear Filter
   const clearFilter = () => {
-    dispatch({ type: CLEAR_FILTER });
+    dispatch({type: CLEAR_FILTER});
   };
 
   return (
@@ -91,6 +108,7 @@ const ContactState = props => {
         contacts: state.contacts,
         current: state.current,
         filtered: state.filtered,
+        error: state.error,
         addContact,
         deleteContact,
         setCurrent,
@@ -100,12 +118,11 @@ const ContactState = props => {
         clearFilter,
         getContacts,
         clearContacts
-      }}
-    >
-      { props.children }
+       }}
+     >
+      {props.children}
     </ContactContext.Provider>
-  );
+   );
 };
 
 export default ContactState;
-
